@@ -1,9 +1,11 @@
 package com.project.kuk;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -28,7 +30,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected( MenuItem item) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
                     int itemId = item.getItemId();
 

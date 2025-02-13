@@ -3,11 +3,9 @@ package com.project.kuk;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -19,35 +17,53 @@ public class MainMenuActivity extends AppCompatActivity {
     CartFragment cartFragment = new CartFragment();
     ProfileFragment profileFragment = new ProfileFragment();
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main_menu);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            getWindow().getInsetsController().hide(android.view.WindowInsets.Type.statusBars());
+        }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.container,homeFragment).commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, homeFragment)
+                    .commit();
+        }
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
 
-                    int itemId = item.getItemId();
-
-                    if (itemId == R.id.home) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.container,homeFragment).commit();
-                        return true;
-                    } else if (itemId == R.id.cart) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.container,cartFragment).commit();
-                        return true;
-                    } else if (itemId == R.id.profile) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.container,profileFragment).commit();
-                        return true;
+                if (itemId == R.id.home) {
+                    if (getSupportFragmentManager().findFragmentByTag("HomeFragment") == null) {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, homeFragment, "HomeFragment")
+                                .commit();
                     }
+                    return true;
+                } else if (itemId == R.id.cart) {
+                    if (getSupportFragmentManager().findFragmentByTag("CartFragment") == null) {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, cartFragment, "CartFragment")
+                                .commit();
+                    }
+                    return true;
+                } else if (itemId == R.id.profile) {
+                    if (getSupportFragmentManager().findFragmentByTag("ProfileFragment") == null) {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, profileFragment, "ProfileFragment")
+                                .commit();
+                    }
+                    return true;
+                }
 
                 return false;
             }
         });
-
     }
 }

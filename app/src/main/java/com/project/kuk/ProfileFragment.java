@@ -16,22 +16,19 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileFragment extends Fragment {
 
-    FirebaseAuth mAuth;
-    Button logout;
+    Button notifications;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        mAuth = FirebaseAuth.getInstance();
-        logout = view.findViewById(R.id.logout);
+        notifications = view.findViewById(R.id.notifications);
 
-        logout.setOnClickListener(new View.OnClickListener() {
+        notifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mAuth.signOut();
-                startActivity(new Intent(getContext(), MainActivity.class));
+                startActivity(new Intent(getContext(), NotificationsActivity.class));
             }
         });
         return view;

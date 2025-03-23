@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,10 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText phone, otp;
-    Button send_sms, verify;
-    FirebaseAuth mAuth;
-    String verificationID;
+    private boolean otpSent = false;
+    private String id = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,98 +37,79 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        Button goToSignIn = findViewById(R.id.btn_to_signin);
-        goToSignIn.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, SignInActivity.class);
-            startActivity(intent);
-        });
+        final EditText mobileET = findViewById(R.id.mobileET);
+        final EditText otp = findViewById(R.id.otp);
+        final Button send_sms = findViewById(R.id.send_sms);
 
-        Button goGuestMode = findViewById(R.id.btn_guest_mode);
-        goGuestMode.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
-            startActivity(intent);
-        });
+        FirebaseApp.initializeApp(this);
 
-        phone = findViewById(R.id.phone);
-        otp = findViewById(R.id.otp);
-        send_sms = findViewById(R.id.send_sms);
-        verify = findViewById(R.id.verify);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
-        send_sms.setOnClickListener(view -> {
-            String phoneNumber = phone.getText().toString();
-            if (TextUtils.isEmpty(phoneNumber)) {
-                Toast.makeText(MainActivity.this, "Enter valid phone number", Toast.LENGTH_LONG).show();
-            } else {
-                sendVerificationCode(phoneNumber);
-            }
-        });
+        send_sms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (otpSent) {
+                    final String getOTP = otp.getText().toString();
 
-        verify.setOnClickListener(view -> {
-            String otpCode = otp.getText().toString();
-            if (TextUtils.isEmpty(otpCode)) {
-                Toast.makeText(MainActivity.this, "Wrong code entered", Toast.LENGTH_LONG).show();
-            } else {
-                verifyCode(otpCode);
-            }
-        });
-    }
+                    if (id.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "Unable to verify", Toast.LENGTH_SHORT).show();
+                    } else {
 
-    private void sendVerificationCode(String phoneNumber) {
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth)
-                .setPhoneNumber("+374" + phoneNumber)       // Phone number to verify
-                .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                .setActivity(this)                 // (optional) Activity for callback binding
-                .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
-                .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
-    }
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(id, getOTP);
 
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        @Override
-        public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-            String code = credential.getSmsCode();
-            if (code != null) {
-                verifyCode(code);
-            }
-        }
+                        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
 
-        @Override
-        public void onVerificationFailed(@NonNull FirebaseException e) {
-            String errorMessage = e.getMessage();
-            Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-            Log.e("VerificationFailed", errorMessage, e);
-        }
+                                if (task.isSuccessful()) {
 
-        @Override
-        public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-            super.onCodeSent(s, token);
-            verificationID = s;
-        }
-    };
+                                    FirebaseUser userDetails = task.getResult().getUser();
 
-    private void verifyCode(String code) {
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationID, code);
-        signInWithCredentials(credential);
-    }
-
-    private void signInWithCredentials(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(MainActivity.this, MainMenuActivity.class));
+                                    Toast.makeText(MainActivity.this, "Verified", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
                     }
-                });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            startActivity(new Intent(MainActivity.this, MainMenuActivity.class));
-            finish();
-        }
+
+                }  else {
+                    final String getMobile = mobileET.getText().toString();
+
+                    PhoneAuthOptions options = PhoneAuthOptions.newBuilder(firebaseAuth)
+                            .setPhoneNumber(getMobile)
+                            .setTimeout(60L, TimeUnit.SECONDS)
+                            .setActivity(MainActivity.this)
+                            .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                                @Override
+                                public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+
+                                    Toast.makeText(MainActivity.this, "Code sent successfully", Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onVerificationFailed(@NonNull FirebaseException e) {
+
+                                    Toast.makeText(MainActivity.this, "Something went wrong " +e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
+                                @Override
+                                public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                    super.onCodeSent(s, forceResendingToken);
+
+                                    otp.setVisibility(View.VISIBLE);
+                                    send_sms.setText("Verify OTP");
+                                    id = s;
+                                    otpSent = true;
+                                }
+                            }).build();
+
+                    PhoneAuthProvider.verifyPhoneNumber(options);
+                }
+
+            }
+        });
+
     }
 }

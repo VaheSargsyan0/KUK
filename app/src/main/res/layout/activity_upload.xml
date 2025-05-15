@@ -24,6 +24,7 @@
             android:orientation="vertical"
             android:layout_gravity="center_horizontal"
             android:padding="20dp"
+            android:backgroundTint="@color/white"
             android:background="@drawable/lavender_border">
 
             <TextView
@@ -49,7 +50,7 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint="Enter topic name"
+                android:hint="Enter product name"
                 android:gravity="start|center_vertical"
                 android:textColor="@color/lavender"/>
 
@@ -71,7 +72,7 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint="Enter language"
+                android:hint="Enter price"
                 android:gravity="start|center_vertical"
                 android:textColor="@color/lavender"/>
 

@@ -1,7 +1,84 @@
 <resources>
     <string name="app_name">KUK</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Cart">Cart</string>
     <string name="Home">Home</string>
     <string name="Profile">Profile</string>
+    <string name="updateProfile">Update Profile</string>
+    <string name="history">History</string>
+    <string name="myProducts">My Products</string>
+    <string name="favorite">Favorite</string>
+    <string name="logout">Log out</string>
+    <string name="change_mail">Change Mail</string>
+    <string name="please_enter_your_new_mail">Please enter your new mail</string>
+    <string name="enter_your_current_password">Enter your current password</string>
+    <string name="new_mail">New Email</string>
+    <string name="change">Change</string>
+    <string name="go_back">Go back</string>
+    <string name="change_username">Change Username</string>
+    <string name="please_enter_your_new_username">Please enter your new username</string>
+    <string name="enter_current_password">Enter current password</string>
+    <string name="new_username">New Username</string>
+    <string name="change_password">Change Password</string>
+    <string name="please_enter_your_new_password">Please enter your new password</string>
+    <string name="new_password">New Password</string>
+    <string name="changepas">Change</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="confirm_deletion">Confirm Deletion</string>
+    <string name="enter_password">Please enter your password to delete your account:</string>
+    <string name="password_hint">Enter your password</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="logged_out">Logged out</string>
+    <string name="failed_to_load_user_data">Failed to load user data</string>
+    <string name="delete_failed">Failed to delete account</string>
+    <string name="reauthentication_failed">Re-authentication failed. Wrong password?</string>
+    <string name="password_required">Password required</string>
+    <string name="language">Language</string>
+    <string name="fields_cannot_be_empty">Fields cannot be empty</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="registration_failed">Registration failed</string>
+    <string name="new_phone_number">New Phone Number</string>
+    <string name="new_email">New Email</string>
+    <string name="profile_updated">Profile updated</string>
+    <string name="failed_update_email">Failed to update email</string>
+    <string name="failed_update_password">Failed to update password</string>
+    <string name="empty_fields_error">Username and Email cannot be empty</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="username">Username</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="upload_image">Upload Image</string>
+    <string name="error_empty_fields">Username and Email cannot be empty</string>
+    <string name="update_successful">Profile updated</string>
+    <string name="email_update_failed">Failed to update email</string>
+    <string name="password_update_failed">Failed to update password</string>
+    <string name="reauthentication_required">Please re-authenticate to update sensitive info</string>
+    <string name="image_upload_failed">Failed to upload image</string>
+    <string name="profile_update_failed">Failed to update profile</string>
+    <string name="hint_username">Enter username</string>
+    <string name="hint_email">Enter email</string>
+    <string name="hint_password">Enter new password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_phone">Phone</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="admin_panel">Admin Panel</string>
+    <string name="search_user">Search users...</string>
+    <string name="refresh">Refresh</string>
+
+
+
+
+
+
+
+
+        <string-array name="user_roles">
+        <item>customer</item>
+        <item>courier</item>
+        <item>shop_owner</item>
+        <item>admin</item>
+    </string-array>
+
 </resources>

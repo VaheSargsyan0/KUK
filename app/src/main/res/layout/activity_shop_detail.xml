@@ -4,14 +4,27 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="@android:color/white">
+
+    <!-- Заголовок магазина -->
 
     <!-- SearchView -->
+
+    <TextView
+        android:id="@+id/shopNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="35dp"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
         app:iconifiedByDefault="false"
@@ -22,7 +35,7 @@
         app:searchIcon="@drawable/baseline_manage_search_24"
         android:background="@drawable/lavender_border"/>
 
-    <!-- Список магазинов -->
+    <!-- Список товаров -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
@@ -30,9 +43,9 @@
         android:layout_below="@id/searchView"
         android:layout_marginBottom="70dp"/>
 
-    <!-- FloatingActionButton "+" -->
+    <!-- FloatingActionButton "Добавить товар" -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/createShopFab"
+        android:id="@+id/addProductFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_input_add"
@@ -41,11 +54,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="7dp"
-        android:visibility="gone"/>
+        android:visibility="gone"/> <!-- 🔥 Скрыта по умолчанию, проверяется в `checkPermissions()` -->
 </RelativeLayout>
-
-
-
-
 
 

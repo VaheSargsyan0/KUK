@@ -1,109 +1,148 @@
 package com.project.kuk;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.project.kuk.databinding.FragmentHomeBinding;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class HomeFragment extends Fragment {
-    FloatingActionButton fab;
-    RecyclerView recyclerView;
-    List<DataClass> dataList;
-    DatabaseReference databaseReference;
-    ValueEventListener eventListener;
-    MyAdapter adapter;
-    SearchView searchView;
+
+    private FragmentHomeBinding binding;
+    private FirebaseDatabase database;
+    private List<Shop> shopList;
+    private List<Shop> filteredList;
+    private ShopAdapter shopAdapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        database = FirebaseDatabase.getInstance();
 
-        fab = view.findViewById(R.id.fab);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        searchView = view.findViewById(R.id.search);
-        searchView.clearFocus();
+        setupRecyclerView();
+        loadShops();
+        setupSearchView();
+        checkUserRole();
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), 1);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        binding.createShopFab.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CreateShopActivity.class);
+            startActivity(intent);
+        });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setCancelable(false);
-        builder.setView(R.layout.progress_layout);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        return binding.getRoot();
+    }
 
-        dataList = new ArrayList<>();
-        adapter = new MyAdapter(getContext(), dataList);
-        recyclerView.setAdapter(adapter);
+    private void setupRecyclerView() {
+        shopList = new ArrayList<>();
+        filteredList = new ArrayList<>();
+        shopAdapter = new ShopAdapter(filteredList);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerView.setAdapter(shopAdapter);
+    }
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Android Tutorials");
-        dialog.show();
-        eventListener = databaseReference.addValueEventListener(new ValueEventListener() {
+    private void loadShops() {
+        DatabaseReference shopsRef = database.getReference("Shops");
+        shopsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                dataList.clear();
-                for (DataSnapshot itemSnapshot: snapshot.getChildren()){
-                    DataClass dataClass = itemSnapshot.getValue(DataClass.class);
-                    dataClass.setKey(itemSnapshot.getKey());
-                    dataList.add(dataClass);
+                shopList.clear();
+                filteredList.clear();
+                for (DataSnapshot shopSnapshot : snapshot.getChildren()) {
+                    Shop shop = shopSnapshot.getValue(Shop.class);
+                    if (shop != null) {
+                        shopList.add(shop);
+                        filteredList.add(shop);
+                    }
                 }
-                adapter.notifyDataSetChanged();
-                dialog.dismiss();
+                shopAdapter.notifyDataSetChanged();
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                dialog.dismiss();
+                showToast("Ошибка загрузки магазинов");
             }
         });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+    }
+
+    private void checkUserRole() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            binding.createShopFab.setVisibility(View.GONE);
+            return;
+        }
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String role = snapshot.child("role").getValue(String.class);
+
+                    if ("shop_owner".equals(role) || "admin".equals(role)) {
+                        binding.createShopFab.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.createShopFab.setVisibility(View.GONE);
+                    }
+                } else {
+                    binding.createShopFab.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                binding.createShopFab.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void setupSearchView() {
+        binding.searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                filterShops(query);
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchList(newText);
-                return true;
+                filterShops(newText);
+                return false;
             }
         });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getContext(), UploadActivity.class));
-            }
-        });
-
-        return view;
     }
-    public void searchList(String text) {
-        ArrayList<DataClass> searchList = new ArrayList<>();
-        for (DataClass dataClass : dataList) {
-            if (dataClass.getDataTitle().toLowerCase().contains(text.toLowerCase())) {
-                searchList.add(dataClass);
+
+    private void filterShops(String query) {
+        filteredList.clear();
+        for (Shop shop : shopList) {
+            if (shop.getShopName().toLowerCase().contains(query.toLowerCase())) {
+                filteredList.add(shop);
             }
         }
-        adapter.searchDataList(searchList);
+        shopAdapter.notifyDataSetChanged();
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }
+
+
+
+

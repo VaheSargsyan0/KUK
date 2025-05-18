@@ -1,7 +1,6 @@
 package com.project.kuk;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +24,7 @@ public class AdminActivity extends AppCompatActivity {
     private UserAdapter userAdapter;
     private List<Map<String, String>> userList;
     private List<Map<String, String>> filteredList;
-
     private SearchView searchView;
-    private Button refreshButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,44 +35,30 @@ public class AdminActivity extends AppCompatActivity {
         recyclerViewUsers.setLayoutManager(new LinearLayoutManager(this));
 
         searchView = findViewById(R.id.searchView);
-        refreshButton = findViewById(R.id.refreshButton);
 
         userList = new ArrayList<>();
         filteredList = new ArrayList<>();
-
         userAdapter = new UserAdapter(this, filteredList);
         recyclerViewUsers.setAdapter(userAdapter);
 
         loadUsersFromDatabase();
-
         setupSearch();
 
-        refreshButton.setOnClickListener(v -> {
-            loadUsersFromDatabase();
-            Toast.makeText(AdminActivity.this, "Users refreshed", Toast.LENGTH_SHORT).show();
-
-            searchView.setQuery("", false);
-            searchView.clearFocus();
-        });
     }
 
     private void loadUsersFromDatabase() {
         FirebaseDatabase.getInstance().getReference().child("Users")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         userList.clear();
                         for (DataSnapshot userSnap : snapshot.getChildren()) {
-                            String uid = userSnap.getKey();
-                            String username = userSnap.child("username").getValue(String.class);
-                            String email = userSnap.child("email").getValue(String.class);
-                            String role = userSnap.child("role").getValue(String.class);
-
-                            Map<String, String> userMap = new HashMap<>();
-                            userMap.put("uid", uid);
-                            userMap.put("username", username != null ? username : "N/A");
-                            userMap.put("email", email != null ? email : "N/A");
-                            userMap.put("role", role != null ? role : "customer");
+                            Map<String, String> userMap = Map.of(
+                                    "uid", userSnap.getKey(),
+                                    "username", userSnap.child("username").getValue(String.class) != null ? userSnap.child("username").getValue(String.class) : "N/A",
+                                    "email", userSnap.child("email").getValue(String.class) != null ? userSnap.child("email").getValue(String.class) : "N/A",
+                                    "role", userSnap.child("role").getValue(String.class) != null ? userSnap.child("role").getValue(String.class) : "customer"
+                            );
 
                             userList.add(userMap);
                         }
@@ -88,7 +70,7 @@ public class AdminActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(AdminActivity.this, "Failed to load users", Toast.LENGTH_SHORT).show();
+                        showToast(R.string.failed_to_load_users);
                     }
                 });
     }
@@ -125,7 +107,12 @@ public class AdminActivity extends AppCompatActivity {
         }
         userAdapter.notifyDataSetChanged();
     }
+
+    private void showToast(int messageId) {
+        Toast.makeText(this, getString(messageId), Toast.LENGTH_SHORT).show();
+    }
 }
+
 
 
 

@@ -1,21 +1,22 @@
 package com.project.kuk;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 
 public class MainMenuActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNavigationView;
-    HomeFragment homeFragment = new HomeFragment();
-    CartFragment cartFragment = new CartFragment();
-    ProfileFragment profileFragment = new ProfileFragment();
+    private BottomNavigationView bottomNavigationView;
+    private Fragment homeFragment = new HomeFragment();
+    private Fragment cartFragment = new CartFragment();
+    private Fragment ordersFragment = new OrdersFragment();
+    private Fragment profileFragment = new ProfileFragment();
+    private Fragment activeFragment;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,43 +28,45 @@ public class MainMenuActivity extends AppCompatActivity {
         }
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        fragmentManager = getSupportFragmentManager();
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, homeFragment)
-                    .commit();
-        }
+        fragmentManager.beginTransaction()
+                .add(R.id.container, homeFragment, "HomeFragment")
+                .commit();
+        fragmentManager.beginTransaction()
+                .add(R.id.container, cartFragment, "CartFragment").hide(cartFragment)
+                .commit();
+        fragmentManager.beginTransaction()
+                .add(R.id.container, ordersFragment, "OrdersFragment").hide(ordersFragment)
+                .commit();
+        fragmentManager.beginTransaction()
+                .add(R.id.container, profileFragment, "ProfileFragment").hide(profileFragment)
+                .commit();
 
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
+        activeFragment = homeFragment;
 
-                if (itemId == R.id.home) {
-                    if (getSupportFragmentManager().findFragmentByTag("HomeFragment") == null) {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, homeFragment, "HomeFragment")
-                                .commit();
-                    }
-                    return true;
-                } else if (itemId == R.id.cart) {
-                    if (getSupportFragmentManager().findFragmentByTag("CartFragment") == null) {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, cartFragment, "CartFragment")
-                                .commit();
-                    }
-                    return true;
-                } else if (itemId == R.id.profile) {
-                    if (getSupportFragmentManager().findFragmentByTag("ProfileFragment") == null) {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, profileFragment, "ProfileFragment")
-                                .commit();
-                    }
-                    return true;
-                }
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
 
-                return false;
+            if (item.getItemId() == R.id.home) {
+                selectedFragment = homeFragment;
+            } else if (item.getItemId() == R.id.cart) {
+                selectedFragment = cartFragment;
+            }else if (item.getItemId() == R.id.orders) {
+                selectedFragment = ordersFragment;
+            }else if (item.getItemId() == R.id.profile) {
+                selectedFragment = profileFragment;
             }
+
+            if (selectedFragment != null && activeFragment != selectedFragment) {
+                fragmentManager.beginTransaction()
+                        .hide(activeFragment)
+                        .show(selectedFragment)
+                        .commit();
+                activeFragment = selectedFragment;
+            }
+            return true;
         });
     }
 }
+

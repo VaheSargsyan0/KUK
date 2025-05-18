@@ -41,29 +41,10 @@ public class ProfileFragment extends Fragment {
 
         loadUserDataFromRealtimeDatabase();
 
-        binding.logoutButton.setOnClickListener(v -> {
-            mAuth.signOut();
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("rememberMe", false);
-            editor.apply();
-
-            Toast.makeText(getActivity(), "Logged out", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getActivity(), SignInActivity.class));
-            getActivity().finish();
-        });
-
-        binding.languageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), LanguageActivity.class);
-            startActivity(intent);
-        });
-
-        binding.updateProfileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), UpdateProfileActivity.class);
-            startActivity(intent);
-        });
-
+        binding.logoutButton.setOnClickListener(v -> logoutUser());
+        binding.languageButton.setOnClickListener(v -> startActivity(new Intent(getActivity(), LanguageActivity.class)));
+        binding.updateProfileButton.setOnClickListener(v -> startActivity(new Intent(getActivity(), UpdateProfileActivity.class)));
         binding.deleteAccountButton.setOnClickListener(v -> confirmDeleteAccount());
-
         binding.adminPanelBut.setOnClickListener(v -> checkAdminAndOpenPanel());
 
         return view;
@@ -73,11 +54,10 @@ public class ProfileFragment extends Fragment {
         if (mAuth.getCurrentUser() == null) return;
 
         String userId = mAuth.getCurrentUser().getUid();
-
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
                 .child(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
@@ -85,51 +65,60 @@ public class ProfileFragment extends Fragment {
                             String username = snapshot.child("username").getValue(String.class);
                             String imageUrl = snapshot.child("profileImageUrl").getValue(String.class);
 
-                            binding.emailTextView.setText(email != null ? email : "Email not available");
-                            binding.usernameTextView1.setText(username != null ? username : "Username not available");
+                            binding.emailTextView.setText(email != null ? email : getString(R.string.email_not_available));
+                            binding.usernameTextView1.setText(username != null ? username : getString(R.string.username_not_available));
 
                             if (imageUrl != null && !imageUrl.isEmpty()) {
-                                Glide.with(requireContext())
-                                        .load(imageUrl)
-                                        .into(binding.uploadImageButton);
+                                Glide.with(requireContext()).load(imageUrl).into(binding.uploadImageButton);
                                 binding.uploadImageButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
                             }
                         } else {
-                            Toast.makeText(getActivity(), "Failed to load user data", Toast.LENGTH_SHORT).show();
+                            showToast(R.string.failed_to_load_data);
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getActivity(), "Failed to load user data", Toast.LENGTH_SHORT).show();
+                        showToast(R.string.failed_to_load_data);
                     }
                 });
     }
 
+    private void logoutUser() {
+        mAuth.signOut();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("rememberMe", false);
+        editor.apply();
+
+        showToast(R.string.logged_out);
+        startActivity(new Intent(getActivity(), SignInActivity.class));
+        getActivity().finish();
+    }
+
     private void confirmDeleteAccount() {
         final EditText input = new EditText(requireContext());
-        input.setHint("Enter your password");
+        input.setHint(getString(R.string.enter_password));
 
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Confirm Deletion")
-                .setMessage("Please enter your password to delete your account:")
+                .setTitle(R.string.confirm_deletion)
+                .setMessage(R.string.enter_password_to_delete)
                 .setView(input)
-                .setPositiveButton("Delete", (dialog, which) -> {
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
                     String password = input.getText().toString().trim();
                     if (!password.isEmpty()) {
                         reauthenticateAndDelete(password);
                     } else {
-                        Toast.makeText(getContext(), "Password required", Toast.LENGTH_SHORT).show();
+                        showToast(R.string.password_required);
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void reauthenticateAndDelete(String password) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null || user.getEmail() == null) {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            showToast(R.string.user_not_logged_in);
             return;
         }
 
@@ -144,22 +133,22 @@ public class ProfileFragment extends Fragment {
                                 editor.putBoolean("rememberMe", false);
                                 editor.apply();
 
-                                Toast.makeText(getContext(), "Account deleted", Toast.LENGTH_SHORT).show();
+                                showToast(R.string.account_deleted);
                                 startActivity(new Intent(getActivity(), SignInActivity.class));
                                 getActivity().finish();
                             } else {
-                                Toast.makeText(getContext(), "Failed to delete account", Toast.LENGTH_SHORT).show();
+                                showToast(R.string.failed_to_delete_account);
                             }
                         });
                     } else {
-                        Toast.makeText(getContext(), "Re-authentication failed. Wrong password?", Toast.LENGTH_SHORT).show();
+                        showToast(R.string.reauthentication_failed);
                     }
                 });
     }
 
     private void checkAdminAndOpenPanel() {
         if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            showToast(R.string.user_not_logged_in);
             return;
         }
 
@@ -173,15 +162,16 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(dataSnapshot -> {
                     String role = dataSnapshot.getValue(String.class);
                     if ("admin".equals(role)) {
-                        Intent intent = new Intent(getActivity(), AdminActivity.class);
-                        startActivity(intent);
+                        startActivity(new Intent(getActivity(), AdminActivity.class));
                     } else {
-                        Toast.makeText(getContext(), "Access denied: You are not an admin", Toast.LENGTH_SHORT).show();
+                        showToast(R.string.access_denied);
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to verify role", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> showToast(R.string.failed_to_verify_role));
+    }
+
+    private void showToast(int messageId) {
+        Toast.makeText(getContext(), getString(messageId), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -190,6 +180,7 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 }
+
 
 
 

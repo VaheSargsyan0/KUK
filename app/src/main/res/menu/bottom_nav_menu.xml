@@ -11,6 +11,11 @@
         android:id="@+id/cart"/>
 
     <item
+        android:title="My orders"
+        android:icon="@drawable/clipboard"
+        android:id="@+id/orders"/>
+
+    <item
     android:title="Profile"
     android:icon="@drawable/profile"
     android:id="@+id/profile"/>

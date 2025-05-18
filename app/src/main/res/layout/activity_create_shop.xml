@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Заголовок -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создание магазина"
+            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="10dp"/>
+
+        <!-- Выбор логотипа -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/cart"
+                android:background="@drawable/rounded_image"
+                android:clipToOutline="true"
+                android:layout_marginBottom="10dp"/>
+
+            <Button
+                android:id="@+id/selectLogoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Выбрать логотип"
+                android:background="@drawable/button_style"/>
+        </LinearLayout>
+
+        <!-- Поля ввода -->
+        <androidx.cardview.widget.CardView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="12dp"
+            android:padding="12dp"
+            android:layout_marginTop="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/shopNameEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Введите название магазина"
+                    android:textSize="16sp"
+                    android:padding="8dp"/>
+
+                <EditText
+                    android:id="@+id/descriptionEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Введите описание магазина"
+                    android:textSize="16sp"
+                    android:padding="8dp"
+                    android:layout_marginTop="10dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Кнопка создания магазина -->
+        <Button
+            android:id="@+id/createShopButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создать магазин"
+            android:textSize="18sp"
+            android:background="@drawable/button_style"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
+</ScrollView>
+

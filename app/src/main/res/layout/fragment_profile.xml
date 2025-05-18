@@ -66,41 +66,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/historyBut"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/history"
-        android:textColor="#000000"
-        android:backgroundTint="#E0E0E0"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/updateProfileButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/favoriteBut"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/favorite"
-        android:textColor="#000000"
-        android:backgroundTint="#E0E0E0"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/historyBut"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/myProductsBut"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/myProducts"
-        android:textColor="#000000"
-        android:backgroundTint="#E0E0E0"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/favoriteBut"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/adminPanelBut"
@@ -110,7 +75,7 @@
         android:textColor="#000000"
         android:backgroundTint="#E0E0E0"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/myProductsBut"
+        app:layout_constraintTop_toBottomOf="@id/updateProfileButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
